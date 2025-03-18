@@ -1,12 +1,10 @@
 package com.smaatix.application.service;
 
-
 import com.smaatix.application.entity.Course;
 import com.smaatix.application.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CourseService {
@@ -47,4 +45,8 @@ public class CourseService {
       throw new RuntimeException("Course not found with id: " + id);
     }
   }
+  public List<String> getAllCoursename() {
+      return courseRepository.findAllCoursename();
+    }
 }
+

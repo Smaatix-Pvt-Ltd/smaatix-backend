@@ -27,7 +27,7 @@ public class CourseController {
   @Autowired
   private ApiService apiService;
 
-  @PostMapping(value = "/courses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/course", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<String> addCourse(
     @RequestPart("courseimg") MultipartFile file,
     @RequestParam("coursename") String coursename,

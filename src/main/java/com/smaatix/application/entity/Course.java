@@ -10,12 +10,15 @@ public class Course {
 
   @Column(nullable = false)
   private String coursename;
+
   @Column(nullable = false)
   private String coursetitle;
 
   @Column(length = 1000)  // Allow longer descriptions
   private String coursedescription;
+
   private String video;
+
   private String courseimg;
 
   public int getCourseid() {
