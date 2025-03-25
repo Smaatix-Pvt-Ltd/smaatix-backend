@@ -1,7 +1,6 @@
 package com.smaatix.application.controller;
 
-import com.smaatix.application.entity.Course;
-import com.smaatix.application.service.ApiService;
+import com.smaatix.application.entity.CourseEntity;
 import com.smaatix.application.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -9,14 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.*;
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/courses")
 @Validated
 @CrossOrigin(origins = "*")
 public class CourseController {
@@ -24,64 +24,75 @@ public class CourseController {
   @Autowired
   private CourseService courseService;
 
-  @Autowired
-  private ApiService apiService;
-
-  @PostMapping(value = "/course", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  // ✅ Create a new course (multipart form data)
+  @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<String> addCourse(
-    @RequestPart("courseimg") MultipartFile file,
-    @RequestParam("coursename") String coursename,
-    @RequestParam("coursetitle") String coursetitle,
-    @RequestParam("coursedescription") String coursedescription,
-    @RequestParam("video") MultipartFile video
+    @RequestPart("imgurl") MultipartFile imgFile,
+    @RequestPart("videourl") MultipartFile videoFile,
+    @RequestParam("videoId") int videoId,
+    @RequestParam("course") String course,
+    @RequestParam("title") String title,
+    @RequestParam("description") String description,
+    @RequestParam("domain") String domain
   ) {
     try {
-      if (file.isEmpty() || video.isEmpty()) {
+      // Validate files
+      if (imgFile.isEmpty() || videoFile.isEmpty()) {
         return ResponseEntity.badRequest().body("Image or video file is empty.");
       }
 
-      // Upload image file
-      String imageUrl = apiService.uploadFile(file);
+      // Validate file types (optional)
+      if (!imgFile.getContentType().startsWith("image/") || !videoFile.getContentType().startsWith("video/")) {
+        return ResponseEntity.badRequest().body("Invalid file type. Image must be an image file, and video must be a video file.");
+      }
 
-      // Upload video file
-      String videoUrl = apiService.uploadFile(video);
+      // Delegate to Service Layer
+      String response = courseService.createCourseEntity(imgFile, videoFile, videoId, course, title, description, domain);
+      return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
-      // Create and save course
-      Course course = new Course();
-      course.setCoursename(coursename);
-      course.setCoursetitle(coursetitle);
-      course.setCoursedescription(coursedescription);
-      course.setCourseimg(imageUrl);
-      course.setVideo(videoUrl);
-
-      String message = courseService.createCourse(course);
-      return ResponseEntity.status(HttpStatus.CREATED).body(message);
-    } catch (DataIntegrityViolationException e) {
-      return ResponseEntity.status(HttpStatus.CONFLICT)
-        .body("Duplicate Entry: Course with the same title or name already exists.");
-    } catch (IOException e) {
+    }  catch (IOException e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body("File upload failed: " + e.getMessage());
     }
   }
 
-    @GetMapping("/get")
-  public ResponseEntity<List<Course>> getAllCourses() {
-    List<Course> courses = courseService.getAllCourses();
+  // ✅ Get all courses
+  @GetMapping("/")
+  public ResponseEntity<List<CourseEntity>> getAllCourses() {
+    List<CourseEntity> courses = courseService.getAllCourses();
     return ResponseEntity.ok(courses);
   }
 
-  @GetMapping("/get/{id}")
-  public ResponseEntity<Course> getCourseById(@PathVariable int id) {
-    Course course = courseService.getCourseById(id);
-    return ResponseEntity.ok(course);
+  // ✅ Get course by ID
+  @GetMapping("/{id}")
+  public ResponseEntity<CourseEntity> getCourseById(@PathVariable long id) {
+    Optional<CourseEntity> course = courseService.getCourseById(id);
+    return course.map(ResponseEntity::ok)
+      .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  // ✅ Update a course
+  @PutMapping("/{id}")
+  public ResponseEntity<String> updateCourse(
+    @PathVariable long id,
+    @RequestBody CourseEntity updatedCourse
+  ) {
+    try {
+      courseService.updateCourseEntity(id, updatedCourse);
+      return ResponseEntity.ok("Course updated successfully!");
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Course not found.");
+    }
+  }
 
-
-  @DeleteMapping("/delete/{id}")
-  public ResponseEntity<String> deleteCourse(@PathVariable int id) {
-    courseService.deleteCourse(id);
-    return ResponseEntity.ok("Course deleted successfully");
+  // ✅ Delete a course
+  @DeleteMapping("/{id}")
+  public ResponseEntity<String> deleteCourse(@PathVariable long id) {
+    try {
+      courseService.deleteCourse(id);
+      return ResponseEntity.ok("Course deleted successfully.");
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Course not found.");
+    }
   }
 }

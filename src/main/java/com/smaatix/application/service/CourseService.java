@@ -1,52 +1,100 @@
 package com.smaatix.application.service;
 
-import com.smaatix.application.entity.Course;
-import com.smaatix.application.repository.CourseRepository;
+import com.smaatix.application.entity.CourseEntity;
+import com.smaatix.application.repository.CourseEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Transactional
 public class CourseService {
 
+  private final CourseEntityRepository courseEntityRepository;
+  private final ApiService apiService;
+
   @Autowired
-  private CourseRepository courseRepository;
-
-  public List<Course> getAllCourses() {
-    return courseRepository.findAll();
+  public CourseService(CourseEntityRepository courseEntityRepository, ApiService apiService) {
+    this.courseEntityRepository = courseEntityRepository;
+    this.apiService = apiService;
   }
 
-  public Course getCourseById(int id) {
-    return courseRepository.findById(id)
-      .orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
-  }
+  /**
+   * Creates a new course entity with associated files stored as URLs
+   */
+  public String createCourseEntity(
+    MultipartFile imgFile,
+    MultipartFile videoFile,
+    int videoId,
+    String course,
+    String title,
+    String description,
+    String domain) throws IOException {
 
-  public String createCourse(Course course) {
-    courseRepository.save(course);
-    return "Course added successfully!";
-  }
+    // Create CourseEntity instance
+    CourseEntity courseEntity = new CourseEntity();
+    courseEntity.setVideoId(videoId);
+    courseEntity.setCourse(course);
+    courseEntity.setTitle(title);
+    courseEntity.setDescription(description);
+    courseEntity.setDomain(domain);
 
-  public Course updateCourse(int id, Course courseDetails) {
-    return courseRepository.findById(id).map(course -> {
-      course.setCoursename(courseDetails.getCoursename());
-      course.setCoursetitle(courseDetails.getCoursetitle());
-      course.setCoursedescription(courseDetails.getCoursedescription());
-      course.setVideo(courseDetails.getVideo());
-      course.setCourseimg(courseDetails.getCourseimg());
-      return courseRepository.save(course);
-    }).orElseThrow(() -> new RuntimeException("Course not found with id: " + id));
-  }
-
-
-  public void deleteCourse(int id) {
-    if (courseRepository.existsById(id)) {
-      courseRepository.deleteById(id);
-    } else {
-      throw new RuntimeException("Course not found with id: " + id);
+    // Upload files and store URLs
+    if (!imgFile.isEmpty()) {
+      courseEntity.setImgurl(apiService.uploadFile(imgFile));
+      courseEntity.setImgurl(imgFile.getContentType());
     }
-  }
-  public List<String> getAllCoursename() {
-      return courseRepository.findAllCoursename();
+
+    if (!videoFile.isEmpty()) {
+      courseEntity.setVideourl(apiService.uploadFile(videoFile));
+      courseEntity.setVideourl(videoFile.getContentType());
     }
+
+    // Save the entity
+    courseEntityRepository.save(courseEntity);
+
+    return "Course created successfully";
+  }
+
+  /**
+   * Retrieves all courses
+   */
+  public List<CourseEntity> getAllCourses() {
+    return courseEntityRepository.findAll();
+  }
+
+  /**
+   * Retrieves a course by ID
+   */
+  public Optional<CourseEntity> getCourseById(Long id) {
+    return courseEntityRepository.findById(id);
+  }
+
+  /**
+   * Updates an existing course
+   */
+  public void updateCourseEntity(Long id, CourseEntity updatedCourse) {
+    CourseEntity existingCourse = courseEntityRepository.findById(id)
+      .orElseThrow(() -> new RuntimeException("Course not found"));
+
+    existingCourse.setVideoId(updatedCourse.getVideoId());
+    existingCourse.setCourse(updatedCourse.getCourse());
+    existingCourse.setTitle(updatedCourse.getTitle());
+    existingCourse.setDescription(updatedCourse.getDescription());
+    existingCourse.setDomain(updatedCourse.getDomain());
+
+    courseEntityRepository.save(existingCourse);
+  }
+
+  /**
+   * Deletes a course by ID
+   */
+  public void deleteCourse(Long id) {
+    courseEntityRepository.deleteById(id);
+  }
 }
-

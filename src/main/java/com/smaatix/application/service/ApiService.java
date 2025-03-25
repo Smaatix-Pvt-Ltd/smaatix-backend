@@ -22,9 +22,9 @@ import java.io.IOException;
   @Service
   public class ApiService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private static final RestTemplate restTemplate = new RestTemplate();
 
-    public String uploadFile(MultipartFile file) throws IOException {
+    public static String uploadFile(MultipartFile file) throws IOException {
       String url = "http://192.168.1.146:3000/api/upload"; // Express API URL
 
       // Save file locally (optional)
