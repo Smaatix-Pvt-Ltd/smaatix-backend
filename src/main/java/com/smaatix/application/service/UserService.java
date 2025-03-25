@@ -51,7 +51,13 @@ public class UserService {
     }
 
     // ✅ Authenticate user by Email OR Phone + Password
-    public Optional<UserEntity> authenticateUser(String identifier, String password) {
-        return userRepository.findByUserEmailOrUserPhoneAndUserPassword(identifier, identifier, password);
+    public Optional<UserEntity> validateUser(String identifier, String password) {
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Password is required");
+        }
+
+        return userRepository.findByUserEmailAndUserPassword(identifier, password)
+          .or(() -> userRepository.findByUserPhoneAndUserPassword(identifier, password))
+          .or(() -> userRepository.findByUsernameAndUserPassword(identifier, password));
     }
 }

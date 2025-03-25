@@ -1,6 +1,7 @@
 package com.smaatix.application.controller;
 
 
+import com.smaatix.application.entity.LoginRequest;
 import com.smaatix.application.entity.UserEntity;
 import com.smaatix.application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,7 @@ import java.util.Optional;
 
 
 @Validated
-@CrossOrigin(origins = "*")
+@CrossOrigin
 @RestController
 @RequestMapping("/api/users")
 public class UserController{
@@ -34,7 +35,7 @@ public class UserController{
         return userService.getUserById(userId);
     }
 
-    @PostMapping
+    @PostMapping("/signup")
     public UserEntity createUser(@RequestBody UserEntity userEntity) {
 
         return userService.createUser(userEntity);
@@ -53,16 +54,11 @@ public class UserController{
 
     // ✅ Login API (Email or Phone + Password)
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(
-      @RequestParam String identifier,  // Accepts email or phone
-      @RequestParam String password
-    ) {
-        Optional<UserEntity> user = userService.authenticateUser(identifier, password);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email/phone or password");
-        }
-    }
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        Optional<UserEntity> user = userService.validateUser(loginRequest.getIdentifier(), loginRequest.getPassword());
+
+        return user.map(u -> ResponseEntity.ok("Login successful"))
+          .orElse(ResponseEntity.status(401).body("Invalid credentials"));
+}
 }
 
