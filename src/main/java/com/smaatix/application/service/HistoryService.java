@@ -1,7 +1,9 @@
 package com.smaatix.application.service;
 
+import com.smaatix.application.entity.CourseEntity;
 import com.smaatix.application.entity.HistoryEntity;
 import com.smaatix.application.entity.UserEntity;
+import com.smaatix.application.repository.CourseEntityRepository;
 import com.smaatix.application.repository.HistoryRepository;
 import com.smaatix.application.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class HistoryService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CourseEntityRepository courseEntityRepository;
+
     // Get all histories
     public List<HistoryEntity> getAllHistories() {
         return historyRepository.findAll();
@@ -35,14 +40,30 @@ public class HistoryService {
         return historyRepository.findByUserEntity_UserId(userId);
     }
 
-    // Create a new history for a user
-    public HistoryEntity createHistory(int userId, HistoryEntity historyEntity) {
+//    // Create a new history for a user
+//    public HistoryEntity createHistory(int userId, HistoryEntity historyEntity) {
+//        UserEntity userEntity = userRepository.findById(userId)
+//          .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+//        historyEntity.setUserEntity(userEntity); // Set the user
+//        historyEntity.setCreatedAt(LocalDateTime.now()); // Set createdAt timestamp
+//        return historyRepository.save(historyEntity);
+//    }
+
+    public HistoryEntity createHistory(int userId, long Id, HistoryEntity historyEntity) {
         UserEntity userEntity = userRepository.findById(userId)
-          .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-        historyEntity.setUserEntity(userEntity); // Set the user
-        historyEntity.setCreatedAt(LocalDateTime.now()); // Set createdAt timestamp
+          .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CourseEntity courseEntity = courseEntityRepository.findById(Id)
+          .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        historyEntity.setUserEntity(userEntity);
+//        historyEntity.setCourseEntity(courseEntity);
+        historyEntity.setCreatedAt(LocalDateTime.now());
+
         return historyRepository.save(historyEntity);
     }
+
+
 
     // Update a history
     public HistoryEntity updateHistory(int historyId, HistoryEntity historyDetails) {

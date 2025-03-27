@@ -37,9 +37,17 @@ public class HistoryController {
     }
 
     // Create a new history for a user
-    @PostMapping("/user/{userId}")
-    public HistoryEntity createHistory(@PathVariable int userId, @RequestBody HistoryEntity historyEntity) {
-        return historyService.createHistory(userId, historyEntity);
+//    @PostMapping("/user/{userId}")
+//    public HistoryEntity createHistory(@PathVariable int userId, @RequestBody HistoryEntity historyEntity) {
+//        return historyService.createHistory(userId, historyEntity);
+//    }
+    @PostMapping("/user/{userId}/Course/{Id}")
+    public HistoryEntity createHistory(
+      @PathVariable int userId,
+      @PathVariable long Id,
+      @RequestBody HistoryEntity historyEntity) {
+
+        return historyService.createHistory(userId, Id, historyEntity);
     }
 
     // Update a history

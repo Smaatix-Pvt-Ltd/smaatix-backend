@@ -1,7 +1,10 @@
 package com.smaatix.application.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "courseentity")
@@ -9,7 +12,11 @@ public class CourseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Long Id;
+
+//  @OneToMany(mappedBy = "CourseEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//  @JsonIgnore
+//  private List<HistoryEntity> histories;
 
   @Column(name = "domain", nullable = false)
   private String domain;
@@ -37,14 +44,12 @@ public class CourseEntity {
   }
 
 
-
-  // Getters and Setters
   public Long getId() {
-    return id;
+    return Id;
   }
 
   public void setId(Long id) {
-    this.id = id;
+    Id = id;
   }
 
   public int getVideoId() {
@@ -103,4 +108,12 @@ public class CourseEntity {
     this.imgurl = imgurl;
   }
 
-  }
+//  public List<HistoryEntity> getHistories() {
+//    return histories;
+//  }
+//
+//  public void setHistories(List<HistoryEntity> histories) {
+//    this.histories = histories;
+//  }
+//}
+}

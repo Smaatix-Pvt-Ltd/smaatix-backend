@@ -2,6 +2,8 @@ package com.smaatix.application.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.List;
 
@@ -11,9 +13,15 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
+
     private String username;
+    	@Column(unique = true)
+
     private String userPassword;
+    @Column(unique = true)
+    @Email(message = "Email should be valid")
     private String userEmail;
+    @Column(unique = true)
     private String userPhone;
 
     @OneToMany(mappedBy = "userEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
