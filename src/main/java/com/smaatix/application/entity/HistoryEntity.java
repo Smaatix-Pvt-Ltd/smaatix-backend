@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 @Entity
 public class HistoryEntity {
@@ -12,41 +11,34 @@ public class HistoryEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private int HistoryId;
 
-//  @CreatedDate
-//  @Temporal(TemporalType.TIMESTAMP) // Store both date and time
-//  @Column(name = "created_at", nullable = false, updatable = false) // Cannot be updated
+  @CreatedDate
+  @Temporal(TemporalType.TIMESTAMP) // Store both date and time
+  @Column(name = "created_at", nullable = false, updatable = false) // Cannot be updated
   private LocalDateTime createdAt;
 
   private int videoId;
 
-//  @Column(name = "duration")
+  @Column(name = "duration")
   private double duration; // Represents a time duration (e.g., PT2H30M for 2 hours and 30 minutes)
 
-//  @Column(name = "paused_at")
+  @Column(name = "paused_at")
 
   private Double pausedAt;
-
-//  @ManyToOne
-//  @JoinColumn(name = "id", nullable = false)
-//  private CourseEntity courseEntity;
 
   @ManyToOne
   @JoinColumn(name = "userId", nullable = false)
   @JsonIgnore// Foreign key to User
   private UserEntity userEntity;
 
-
   public HistoryEntity() {
   }
 
-
-  public HistoryEntity(int historyId, LocalDateTime createdAt, int videoId, double duration, Double pausedAt, CourseEntity courseEntity, UserEntity userEntity) {
+  public HistoryEntity(int historyId, LocalDateTime createdAt, int videoId, double duration, Double pausedAt,  UserEntity userEntity) {
     HistoryId = historyId;
     this.createdAt = createdAt;
     this.videoId = videoId;
     this.duration = duration;
     this.pausedAt = pausedAt;
-//    this.courseEntity = courseEntity;
     this.userEntity = userEntity;
   }
 
@@ -98,11 +90,4 @@ public class HistoryEntity {
   public void setUserEntity(UserEntity userEntity) {
     this.userEntity = userEntity;
   }
-//
-//  public CourseEntity getCourseEntity() {
-//    return courseEntity;
-//  }
-//
-//  public void setCourseEntity(CourseEntity courseEntity) {
-//    this.courseEntity = courseEntity;
-  }
+}

@@ -47,12 +47,12 @@ public class CourseService {
     // Upload files and store URLs
     if (!imgFile.isEmpty()) {
       courseEntity.setImgurl(apiService.uploadFile(imgFile));
-      courseEntity.setImgurl(imgFile.getContentType());
+
     }
 
     if (!videoFile.isEmpty()) {
       courseEntity.setVideourl(apiService.uploadFile(videoFile));
-      courseEntity.setVideourl(videoFile.getContentType());
+
     }
 
     // Save the entity

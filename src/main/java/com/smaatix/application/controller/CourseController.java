@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +16,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/courses")
 @Validated
-@CrossOrigin(origins = "*")
+@CrossOrigin
 public class CourseController {
 
   @Autowired

@@ -1,11 +1,9 @@
 package com.smaatix.application.controller;
 
-
 import com.smaatix.application.entity.LoginRequest;
 import com.smaatix.application.entity.UserEntity;
 import com.smaatix.application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +46,6 @@ public class UserController{
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable int userId) {
-
         userService.deleteUser(userId);
     }
 
